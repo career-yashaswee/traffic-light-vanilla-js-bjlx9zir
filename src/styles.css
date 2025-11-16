@@ -1,0 +1,8 @@
+body {
+  font-family: sans-serif;
+}
+
+/* TODO: Add styles for .wrapper (flex column, centered, gap) */
+/* TODO: Add styles for .traffic-light-container (black background, padding, gap, flex) */
+/* TODO: Add styles for .traffic-light-container--vertical (flex-direction: column) */
+/* TODO: Add styles for .traffic-light (circular, gray background by default, size) */
