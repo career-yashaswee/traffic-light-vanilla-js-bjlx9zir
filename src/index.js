@@ -1,36 +1,93 @@
 import './styles.css';
 
-// TODO: Create config object with red, yellow, green colors
-// TODO: Each color should have: backgroundColor, duration, next
-// TODO: Red: 4000ms duration, next: 'green'
-// TODO: Yellow: 500ms duration, next: 'red'
-// TODO: Green: 3000ms duration, next: 'yellow'
+(() => {
+  const config = {
+    red: {
+      backgroundColor: 'red',
+      duration: 4000,
+      next: 'green',
+    },
+    yellow: {
+      backgroundColor: 'yellow',
+      duration: 500,
+      next: 'red',
+    },
+    green: {
+      backgroundColor: 'green',
+      duration: 3000,
+      next: 'yellow',
+    },
+  };
 
-// TODO: Create light function that accepts { backgroundColor }
-// TODO: Function should create a div element with class "traffic-light"
-// TODO: Set aria-hidden="true" on the element
-// TODO: If backgroundColor is provided, set it as style.backgroundColor
-// TODO: Return the element
+  function light({ backgroundColor }) {
+    const $lightEl = document.createElement('div');
+    $lightEl.classList.add('traffic-light');
+    $lightEl.setAttribute('aria-hidden', 'true');
 
-// TODO: Create trafficLight function that accepts ($rootEl, { initialColor, config, layout })
-// TODO: Initialize currentColor with initialColor
-// TODO: Create container div with class "traffic-light-container"
-// TODO: Set aria-live="polite" on container
-// TODO: If layout is 'vertical', add class "traffic-light-container--vertical"
-// TODO: Create timer variable (let timer = null)
-// TODO: Create setTransition function that:
-//   - Gets duration and next from config[currentColor]
-//   - Sets timer = setTimeout(() => { currentColor = next; renderLoop(); }, duration)
-// TODO: Create render function that:
-//   - Clears container innerHTML
-//   - Sets aria-label to `Current light: ${currentColor}`
-//   - Maps over Object.keys(config) to create lights
-//   - Only active light (color === currentColor) gets backgroundColor
-//   - Appends lights to container
-// TODO: Create renderLoop function that calls render() then setTransition()
-// TODO: Add beforeunload event listener to clear timer
-// TODO: Append container to $rootEl
-// TODO: Call renderLoop() to start
+    if (backgroundColor != null) {
+      $lightEl.style.backgroundColor = backgroundColor;
+    }
+    return $lightEl;
+  }
 
-// TODO: Call trafficLight with document.getElementById('traffic-light')
-// TODO: Pass initialColor: 'green', config, layout: 'vertical'
+  function trafficLight($rootEl, { initialColor, config, layout }) {
+    let currentColor = initialColor;
+    const $containerEl = document.createElement('div');
+    $containerEl.classList.add('traffic-light-container');
+    $containerEl.setAttribute('aria-live', 'polite');
+    if (layout === 'vertical') {
+      $containerEl.classList.add('traffic-light-container--vertical');
+    }
+
+    let timer = null;
+
+    function setTransition() {
+      const { duration, next } = config[currentColor];
+      timer = setTimeout(() => {
+        currentColor = next;
+        renderLoop();
+      }, duration);
+    }
+
+    function render() {
+      $containerEl.innerHTML = '';
+      $containerEl.setAttribute(
+        'aria-label',
+        `Current light: ${currentColor}`
+      );
+      Object.keys(config).map((color) => {
+        $containerEl.append(
+          light({
+            backgroundColor:
+              color === currentColor
+                ? config[color].backgroundColor
+                : undefined,
+          })
+        );
+      });
+    }
+
+    function renderLoop() {
+      render();
+      setTransition();
+    }
+
+    // The beforeunload event is fired before the tab/window is closed.
+    // Clear the timer when the tab/window is about to be closed.
+    window.addEventListener('beforeunload', () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    });
+
+    $rootEl.append($containerEl);
+    renderLoop();
+  }
+
+  trafficLight(document.getElementById('traffic-light'), {
+    initialColor: 'green',
+    config,
+    layout: 'vertical',
+  });
+})();
+
